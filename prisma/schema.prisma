@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("Bookkeeping_db")
+  url      = env("bookkeeping_db_e4xj")
 }
 
 model User {
