@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { CODE_LIFETIME_MS, generateVerificationCode, hashVerificationCode, sendVerificationEmail } from "@/lib/auth/verification";
+import { createSession } from "@/lib/auth/session";
 import { errorResponse, readJson } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 
@@ -29,32 +29,6 @@ export async function POST(request: Request) {
     return errorResponse("The account ID/email or password is incorrect.", 401);
   }
 
-  const recentChallenges = await prisma.verificationChallenge.count({
-    where: { email: user.email, createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) } },
-  });
-  if (recentChallenges >= 3) return errorResponse("Too many verification requests. Please try again later.", 429);
-
-  const code = generateVerificationCode();
-  const challenge = await prisma.$transaction(async (transaction) => {
-    await transaction.verificationChallenge.updateMany({
-      where: { email: user.email, consumedAt: null },
-      data: { consumedAt: new Date() },
-    });
-    const created = await transaction.verificationChallenge.create({
-      data: {
-        email: user.email,
-        userId: user.id,
-        codeHash: "pending",
-        expiresAt: new Date(Date.now() + CODE_LIFETIME_MS),
-      },
-    });
-    return transaction.verificationChallenge.update({
-      where: { id: created.id },
-      data: { codeHash: hashVerificationCode(created.id, code) },
-      select: { id: true },
-    });
-  });
-
-  await sendVerificationEmail(user.email, code);
-  return Response.json({ challengeId: challenge.id, message: "Verification code sent." }, { status: 202 });
+  await createSession(user.id);
+  return Response.json({ message: "Signed in.", user: { id: user.id, name: user.name } });
 }

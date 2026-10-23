@@ -12,26 +12,9 @@ model User {
   name          String
   email         String            @unique
   passwordHash  String
-  emailVerified DateTime?
   createdAt     DateTime          @default(now())
   progress      ChapterProgress[]
   quizAttempts  QuizAttempt[]
-}
-
-model VerificationChallenge {
-  id                   String   @id @default(cuid())
-  email                String
-  userId               String?
-  pendingName          String?
-  pendingPasswordHash  String?
-  codeHash             String
-  expiresAt            DateTime
-  attempts             Int      @default(0)
-  resends              Int      @default(0)
-  consumedAt           DateTime?
-  createdAt            DateTime @default(now())
-
-  @@index([email, createdAt])
 }
 
 model ChapterProgress {

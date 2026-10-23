@@ -238,8 +238,6 @@ h3 { font-size: 1.45rem; }
 .auth-switch { margin: 19px 0 0; text-align: center; color: var(--muted); font-size: 11px; }
 .auth-switch a { color: var(--blue); font-weight: 700; }
 .form-error { margin: 10px 0 0; color: var(--danger); font-size: 11px; }
-.form-success { margin: 10px 0 0; color: var(--success); font-size: 11px; }
-.resend-button { display: block; margin: 9px auto 0; font-size: 11px; }
 .not-found { display: flex; min-height: calc(100vh - 155px); flex-direction: column; align-items: center; justify-content: center; padding: 35px 20px; text-align: center; }
 .not-found-code { margin: 10px 0 0; color: var(--blue); font: 100px/.95 var(--serif); opacity: .8; }
 .not-found h1 { margin: 6px 0 10px; font-size: 39px; }

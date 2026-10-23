@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { CODE_LIFETIME_MS, generateVerificationCode, hashVerificationCode, sendVerificationEmail } from "@/lib/auth/verification";
+import { createSession } from "@/lib/auth/session";
 import { errorResponse, readJson } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 
@@ -30,35 +31,19 @@ export async function POST(request: Request) {
   const existing = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   if (existing) return errorResponse("An account with this email already exists.", 409);
 
-  const recentChallenges = await prisma.verificationChallenge.count({
-    where: { email, createdAt: { gte: new Date(Date.now() - 15 * 60 * 1000) } },
-  });
-  if (recentChallenges >= 3) return errorResponse("Too many verification requests. Please try again later.", 429);
-
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  const code = generateVerificationCode();
-  const expiresAt = new Date(Date.now() + CODE_LIFETIME_MS);
-  const challenge = await prisma.$transaction(async (transaction) => {
-    await transaction.verificationChallenge.updateMany({
-      where: { email, consumedAt: null },
-      data: { consumedAt: new Date() },
+  try {
+    const user = await prisma.user.create({
+      data: { name, email, passwordHash },
+      select: { id: true, name: true },
     });
-    const created = await transaction.verificationChallenge.create({
-      data: {
-        email,
-        pendingName: name,
-        pendingPasswordHash: passwordHash,
-        codeHash: "pending",
-        expiresAt,
-      },
-    });
-    return transaction.verificationChallenge.update({
-      where: { id: created.id },
-      data: { codeHash: hashVerificationCode(created.id, code) },
-      select: { id: true },
-    });
-  });
 
-  await sendVerificationEmail(email, code);
-  return Response.json({ challengeId: challenge.id, message: "Verification code sent." }, { status: 202 });
+    await createSession(user.id);
+    return Response.json({ message: "Account created.", user }, { status: 201 });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return errorResponse("An account with this email already exists.", 409);
+    }
+    throw error;
+  }
 }
