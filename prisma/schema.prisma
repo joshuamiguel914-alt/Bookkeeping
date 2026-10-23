@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String            @id @default(cuid())
+  name          String
+  email         String            @unique
+  passwordHash  String
+  emailVerified DateTime?
+  createdAt     DateTime          @default(now())
+  progress      ChapterProgress[]
+  quizAttempts  QuizAttempt[]
+}
+
+model VerificationChallenge {
+  id                   String   @id @default(cuid())
+  email                String
+  userId               String?
+  pendingName          String?
+  pendingPasswordHash  String?
+  codeHash             String
+  expiresAt            DateTime
+  attempts             Int      @default(0)
+  resends              Int      @default(0)
+  consumedAt           DateTime?
+  createdAt            DateTime @default(now())
+
+  @@index([email, createdAt])
+}
+
+model ChapterProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  chapterSlug String
+  completed   Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterSlug])
+}
+
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  chapterSlug String
+  score       Int
+  total       Int
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
