@@ -16,12 +16,12 @@ A responsive, full-stack bookkeeping and accounting learning site built with Nex
    ```
 
 2. Copy `.env.example` to `.env` and set:
-   - `DATABASE_URL`: PostgreSQL connection string.
+   - `Bookkeeping_db`: PostgreSQL connection string.
    - `SESSION_SECRET`: randomly generated secret with at least 32 characters.
 
    Do not commit `.env`.
 
-3. Create the PostgreSQL database named in `DATABASE_URL`, then apply the Prisma schema:
+3. Create the PostgreSQL database named in `Bookkeeping_db`, then apply the Prisma schema:
 
    ```bash
    npx prisma db push
