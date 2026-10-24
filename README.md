@@ -88,6 +88,57 @@ prisma/               Prisma database schema
 .github/workflows/    Continuous integration checks
 ```
 
+## Lesson and quiz content
+
+Lesson text and quiz questions are TypeScript data files, not database records or page-component literals:
+
+- `data/content/chapter-NN.ts` contains one chapter: its slug, title, summary, sections, paragraphs, and optional worked example.
+- `data/content/types.ts` defines the lesson data shape. Add key terms, common mistakes, practice questions, and recaps as clearly labeled paragraphs in a lesson section.
+- `data/content/index.ts` lists the chapters in course order.
+- `data/quizzes/chapter-NN.ts` contains the quiz for the matching chapter slug.
+- `data/quizzes/types.ts` defines supported question shapes, and `data/quizzes/index.ts` lists quizzes and sets shared quiz behavior.
+
+### Adding a chapter or lesson
+
+1. Add a `Chapter` record in `data/content/chapter-NN.ts`. Keep the slug unique and use beginner-friendly paragraphs; put a worked example in the section's optional `example` field.
+2. Add the chapter export to `data/content/index.ts` in the intended course order.
+3. Add the matching quiz in `data/quizzes/chapter-NN.ts` and include it in `data/quizzes/index.ts`. The lesson and quiz `chapterSlug` values must match.
+4. Add at least five distinct questions, each with one correct answer and a short explanation. Prefer 5–10 questions based on lesson length; check calculations and answer keys before merging.
+5. Run `npm run lint`, `npm run typecheck`, and `npm run build`.
+
+### Adding quiz questions
+
+Question types are discriminated by `type`. Multiple-choice and true/false questions use a zero-based `answerIndex`; for true/false, use `options: ["True", "False"]`. Fill-in-the-blank questions list acceptable exact answers; the checker ignores surrounding whitespace and letter case, so include any legitimate alternate wording explicitly.
+
+```ts
+import type { QuizQuestion } from "@/data/quizzes/types";
+
+const multipleChoiceQuestion: QuizQuestion = {
+  type: "multiple-choice",
+  prompt: "Which formula is the accounting equation?",
+  options: ["Assets = Liabilities + Equity", "Assets = Income + Expenses"],
+  answerIndex: 0,
+  explanation: "The equation shows that assets are financed by liabilities and equity.",
+}
+
+const trueFalseQuestion: QuizQuestion = {
+  type: "true-false",
+  prompt: "A debit always increases every account.",
+  options: ["True", "False"],
+  answerIndex: 1,
+  explanation: "The effect of a debit depends on the account type.",
+}
+
+const fillInTheBlankQuestion: QuizQuestion = {
+  type: "fill-in-the-blank",
+  prompt: "Assets = Liabilities + ___.",
+  acceptedAnswers: ["equity", "owner's equity"],
+  explanation: "Equity is the residual interest after liabilities are deducted from assets.",
+}
+```
+
+The shared settings in `data/quizzes/index.ts` set the passing score (75%), the attempt limit (three attempts total, including the first), and shuffled question order. In-progress answers and the shuffled order are saved in the learner's browser. Completed scores are stored in PostgreSQL as `QuizAttempt` records and appear in quiz history and the dashboard; taking a quiz does not automatically mark a lesson complete. Chapter completion remains a separate lesson action. Content changes do not require a Prisma migration; changing database models does.
+
 ## Environment variables
 
 | Variable | Used for |

@@ -9,6 +9,10 @@ import { quiz as chapter8 } from "./chapter-08";
 import { quiz as chapter9 } from "./chapter-09";
 import { quiz as chapter10 } from "./chapter-10";
 
+export const PASSING_SCORE_PERCENT = 75;
+export const MAX_QUIZ_ATTEMPTS = 3;
+export const SHUFFLE_QUIZ_QUESTIONS = true;
+
 export const quizzes = [
   chapter1, chapter2, chapter3, chapter4, chapter5,
   chapter6, chapter7, chapter8, chapter9, chapter10,
