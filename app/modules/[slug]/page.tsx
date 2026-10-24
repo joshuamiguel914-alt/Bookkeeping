@@ -21,7 +21,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
   const previous = chapters[index - 1];
   const next = chapters[index + 1];
 
-  return <div className="page-shell lesson-shell">
+  return <div className="page-shell">
     <Link className="back-link" href="/modules">← All modules</Link>
     <section className="lesson-hero">
       <span className="eyebrow">{chapter.part}</span>
