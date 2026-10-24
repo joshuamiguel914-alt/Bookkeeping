@@ -208,7 +208,8 @@ h3 { font-size: 1.45rem; }
 .quiz-heading h1 { margin: 7px 0 0; font-size: clamp(2rem, 4vw, 3rem); }
 .pill { border: 1px solid var(--line); border-radius: 20px; padding: 6px 12px; color: var(--muted); font-size: 10px; white-space: nowrap; }
 .question-card { min-width: 0; margin: 0 0 16px; border: 1px solid var(--line); border-radius: 16px; padding: 19px; background: var(--surface); box-shadow: var(--shadow); }
-.question-card legend { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 0 0 12px; font: 19px/1.35 var(--serif); }
+.question-card legend { display: grid; grid-template-columns: 31px minmax(0, 1fr); align-items: flex-start; gap: 12px; width: 100%; padding: 0 0 12px; font: 19px/1.35 var(--serif); }
+.question-card legend > span:last-child { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
 .question-number { display: grid; flex: 0 0 31px; place-items: center; height: 31px; border-radius: 9px; color: var(--blue); background: var(--blue-light); font: 13px var(--sans); }
 .answer-option { display: flex; align-items: center; gap: 9px; margin: 7px 0 0; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--muted); cursor: pointer; font-size: 12px; }
 .answer-option:has(input:checked) { border-color: var(--blue); color: var(--ink); background: var(--blue-light); }
